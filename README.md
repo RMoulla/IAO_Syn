@@ -10,13 +10,12 @@ Training materials and practical exercises with French and English versions. The
 | Prompting lab | [Notebook](TP_Prompting_English.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/TP_Prompting_English.ipynb) | [Notebook](TP_Prompting.ipynb) |
 | From needs to specifications | [Skill](SKILL_EN.md) | [Skill](SKILL.md) |
 | User story quality audit — n8n | [Workflow](US_Quality_IAA_EN.json) | [Workflow](US_Quality_IAA.json) |
-| RAG step by step | [Notebook](TP_RAG_Github_EN.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/TP_RAG_Github_EN.ipynb) | [Notebook](TP_RAG_Github.ipynb) |
+| RAG correction | [Notebook](TP_RAG_Correction_EN.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/TP_RAG_Correction_EN.ipynb) | [Notebook](TP_RAG_Correction.ipynb) |
 | RAG with Gradio | [Notebook](RAG_Gradio_EN.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/RAG_Gradio_EN.ipynb) | [Notebook](RAG_Gradio.ipynb) |
 | E-commerce agent with MCP | [Notebook](Copie_de_TP_Agent_LLM_EN.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/Copie_de_TP_Agent_LLM_EN.ipynb) | [Notebook](Copie_de_TP_Agent_LLM.ipynb) |
 | Real-estate dataset | [CSV](selogerdata.csv) · [English data guide](DATA_EN.md) | Same source dataset |
 | Product catalogue (already in English) | [CSV](products.csv) | Same source dataset |
 
-The earlier [RAG correction notebook](TP_RAG_Correction.ipynb) remains available in French. Its [English correction](TP_RAG_Correction_EN.ipynb) uses the updated step-by-step lab from IAA Metz, covering the same extraction, embedding, retrieval and generation stages.
 
 ## Download and prepare
 
@@ -43,7 +42,7 @@ The result supports a human review; it is not a substitute for it.
 
 Download the English course PDF from the table and upload it to your Colab session. Opening a notebook does not upload the PDF automatically. Use selectable-text PDFs: these labs do not perform OCR.
 
-For **RAG step by step**, run extraction and chunking, embeddings, retrieval, then answer generation. The notebook expects the exact English PDF filename. Change `query` and rerun retrieval and generation to try another question. Use a dedicated Colab runtime: this source lab retains `openai==0.28`. Only the final generation stage needs the API key.
+For **RAG correction**, run extraction and chunking, embeddings, retrieval, then answer generation. Rename the downloaded course PDF to `Cours.pdf` before uploading it: this is the filename expected by the original correction and its English translation. Change `query` and rerun retrieval and generation to try another question. Use a dedicated Colab runtime: this source lab retains `openai==0.28`. Only the final generation stage needs the API key.
 
 For **Gradio**, run installation and API-key setup, upload the PDF into `/content/`, then run sections 1–4. Verify that the number of pages and chunks is greater than zero. Ask, for example: “How does the course explain RAG?” The last cell stays active to serve the interface. After adding a PDF, stop it and rerun sections 1–4. Retrieved passages and your question are sent to the API; compare answers with the source.
 
