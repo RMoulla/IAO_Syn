@@ -1,0 +1,128 @@
+{
+  "name": "MiamLocal — User Story Quality Audit (English)",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "User Story Audit — MiamLocal",
+        "formDescription": "Paste a MiamLocal backlog user story title and description. AI evaluates five criteria: persona, format, description, acceptance criteria and granularity.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "User Story Title",
+              "placeholder": "Example: As a customer, I want to filter restaurants...",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Description",
+              "fieldType": "textarea",
+              "placeholder": "Paste the story description and acceptance criteria here.",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cf8ed12f-9e43-40c1-b751-cfcbc251d2c5",
+      "name": "User Story Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -432,
+        -224
+      ],
+      "webhookId": "bcfd66dc-78be-44a7-b8b2-986a7ba5165b"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'gpt-4o-mini', temperature: 0.2, messages: [{ role: 'system', content: \"You are a quality assistant for the MiamLocal product backlog (neighbourhood meal delivery; three personas: customer, restaurant owner, delivery driver). Evaluate the submitted user story on five criteria, scoring each from 0 to 2 (0 = absent or unusable, 1 = present but insufficient, 2 = satisfactory). 1. PERSONA: Is the persona explicit and specific? 2. FORMAT: Does the story follow As a... I want... so that...? 3. DESCRIPTION: Is it sufficient to understand the need? 4. ACCEPTANCE CRITERIA: Are they present and testable? 5. GRANULARITY: Can the story be completed in one sprint? Respond in English with ONLY JSON, without surrounding text, using this schema: {\\\"score_total\\\": 0, \\\"details\\\": {\\\"persona\\\": {\\\"score\\\": 0, \\\"comment\\\": \\\"...\\\"}, \\\"format\\\": {\\\"score\\\": 0, \\\"comment\\\": \\\"...\\\"}, \\\"description\\\": {\\\"score\\\": 0, \\\"comment\\\": \\\"...\\\"}, \\\"acceptance_criteria\\\": {\\\"score\\\": 0, \\\"comment\\\": \\\"...\\\"}, \\\"granularity\\\": {\\\"score\\\": 0, \\\"comment\\\": \\\"...\\\"}}, \\\"verdict\\\": \\\"OK|NEEDS_REWORK|BLOCKING\\\", \\\"suggestions\\\": [\\\"suggestion 1\\\", \\\"suggestion 2\\\"]}. score_total is the sum out of 10. Verdict rules: 8-10 = OK, 4-7 = NEEDS_REWORK, 0-3 = BLOCKING.\" }, { role: 'user', content: 'Title: ' + $json['User Story Title'] + '\\nDescription: ' + ($json['Description'] || '(empty)') }] }) }}",
+        "options": {}
+      },
+      "id": "0ecb9374-e601-4701-ae5c-5f898ef9931c",
+      "name": "LLM API Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -176,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the LLM response\nconst response = $input.first().json;\nconst title = $('User Story Form').first().json['User Story Title'];\n\nlet content = '';\ntry {\n  content = response.choices[0].message.content;\n} catch (e) {\n  return [{ json: { resultText: '<h2>Error</h2><p>No response from the LLM. Check the API key.</p>' } }];\n}\n\n// Clean and parse JSON\nlet cleaned = content.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet evaluation;\ntry {\n  evaluation = JSON.parse(cleaned);\n} catch (e) {\n  return [{ json: { resultText: '<h2>Parsing error</h2><p>The LLM did not return valid JSON:</p><pre>' + cleaned.substring(0, 500) + '</pre>' } }];\n}\n\n// Choose verdict emoji and colour\nlet emoji = '⚠️';\nlet colour = '#f59e0b';\nif (evaluation.verdict === 'OK') { emoji = '✅'; colour = '#22c55e'; }\nelse if (evaluation.verdict === 'BLOCKING') { emoji = '🔴'; colour = '#ef4444'; }\n\n// Build the details table\nconst rows = Object.entries(evaluation.details || {})\n  .map(([criterion, val]) => {\n    const barWidth = (val.score / 2) * 100;\n    return `<tr>\n      <td style=\"padding:8px 12px;font-weight:600;text-transform:capitalize;\">${criterion.replace('_', ' ')}</td>\n      <td style=\"padding:8px 12px;text-align:center;\"><strong>${val.score}/2</strong></td>\n      <td style=\"padding:8px 12px;\">\n        <div style=\"background:#e5e7eb;border-radius:4px;height:8px;width:100px;\">\n          <div style=\"background:${colour};border-radius:4px;height:8px;width:${barWidth}px;\"></div>\n        </div>\n      </td>\n      <td style=\"padding:8px 12px;color:#555;\">${val.comment}</td>\n    </tr>`;\n  }).join('');\n\nconst suggestions = (evaluation.suggestions || [])\n  .map(s => `<li style=\"margin-bottom:4px;\">${s}</li>`)\n  .join('');\n\nconst html = `\n<div style=\"font-family:system-ui,sans-serif;max-width:700px;margin:0 auto;\">\n  <h2 style=\"margin-bottom:4px;\">${emoji} Assessment: ${title}</h2>\n  <p style=\"font-size:1.3em;color:${colour};font-weight:700;\">Score: ${evaluation.score_total}/10 — ${evaluation.verdict}</p>\n  <table style=\"width:100%;border-collapse:collapse;margin:16px 0;\">\n    <thead>\n      <tr style=\"background:#f3f4f6;\">\n        <th style=\"padding:8px 12px;text-align:left;\">Criterion</th>\n        <th style=\"padding:8px 12px;\">Score</th>\n        <th style=\"padding:8px 12px;\">Bar</th>\n        <th style=\"padding:8px 12px;text-align:left;\">Comment</th>\n      </tr>\n    </thead>\n    <tbody>${rows}</tbody>\n  </table>\n  ${suggestions.length > 0 ? '<h3>Suggestions</h3><ul>' + suggestions + '</ul>' : ''}\n</div>\n`;\n\nreturn [{ json: { resultText: html } }];"
+      },
+      "id": "80981def-5ade-43d6-b36d-af4cc41ee9c6",
+      "name": "Format Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "={{ $json.resultText }}"
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        304,
+        -224
+      ],
+      "id": "06541dc6-8d05-4160-95e9-076db11d8a81",
+      "name": "Form",
+      "webhookId": "6930547f-2fb1-44cc-8f07-c9674d20b41e"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "User Story Form": {
+      "main": [
+        [
+          {
+            "node": "LLM API Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM API Call": {
+      "main": [
+        [
+          {
+            "node": "Format Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Result": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "nodeGroups": [],
+  "tags": []
+}
