@@ -11,7 +11,6 @@ Training materials and practical exercises with French and English versions. The
 | From needs to specifications | [Skill](SKILL_EN.md) | [Skill](SKILL.md) |
 | User story quality audit — n8n | [Workflow](US_Quality_IAA_EN.json) | [Workflow](US_Quality_IAA.json) |
 | RAG correction | [Notebook](TP_RAG_Correction_EN.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/TP_RAG_Correction_EN.ipynb) | [Notebook](TP_RAG_Correction.ipynb) |
-| RAG with Gradio | [Notebook](RAG_Gradio_EN.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/RAG_Gradio_EN.ipynb) | [Notebook](RAG_Gradio.ipynb) |
 | E-commerce agent with MCP | [Notebook](Copie_de_TP_Agent_LLM_EN.ipynb) · [Colab](https://colab.research.google.com/github/RMoulla/IAO_Syn/blob/main/Copie_de_TP_Agent_LLM_EN.ipynb) | [Notebook](Copie_de_TP_Agent_LLM.ipynb) |
 | Real-estate dataset | [CSV](selogerdata.csv) · [English data guide](DATA_EN.md) | Same source dataset |
 | Product catalogue (already in English) | [CSV](products.csv) | Same source dataset |
@@ -38,13 +37,12 @@ Use `SKILL_EN.md` in a tool that supports Skills, or attach its content to your 
 
 The result supports a human review; it is not a substitute for it.
 
-## RAG labs
+## RAG lab
 
 Download the English course PDF from the table and upload it to your Colab session. Opening a notebook does not upload the PDF automatically. Use selectable-text PDFs: these labs do not perform OCR.
 
 For **RAG correction**, run extraction and chunking, embeddings, retrieval, then answer generation. Rename the downloaded course PDF to `Cours.pdf` before uploading it: this is the filename expected by the original correction and its English translation. Change `query` and rerun retrieval and generation to try another question. Use a dedicated Colab runtime: this source lab retains `openai==0.28`. Only the final generation stage needs the API key.
 
-For **Gradio**, run installation and API-key setup, upload the PDF into `/content/`, then run sections 1–4. Verify that the number of pages and chunks is greater than zero. Ask, for example: “How does the course explain RAG?” The last cell stays active to serve the interface. After adding a PDF, stop it and rerun sections 1–4. Retrieved passages and your question are sent to the API; compare answers with the source.
 
 ## Agent lab
 
@@ -67,7 +65,6 @@ The output shows MCP calls, tool results and Buddy's replies. The cart is a simu
 | No PDF pages or chunks | Upload a text-based PDF into `/content/`, then rerun loading and indexing. |
 | Missing `products.csv` | Upload the file with its exact name, without `(1)` or `.txt`. |
 | Unknown variable or import error | Resume in order from the first failing cell; restart the runtime when required. |
-| Gradio link has expired | Rerun the lab and use its newly generated link. |
 
 Your saved notebook remains in Drive. Uploaded files and installed packages belong to the temporary Colab runtime; upload and install again after a reset.
 
